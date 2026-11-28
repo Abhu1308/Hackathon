@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>PowerQuest — Grid Council</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+    <!-- =====================================
+         3D CITY
+         ===================================== -->
+
+    <div id="game"></div>
+
+    <!-- =====================================
+         MINIMAL TOP HUD
+         ===================================== -->
+
+    <header id="top-bar">
+
+        <div class="day-chip">
+
+            <span id="day-icon">☀</span>
+
+            Day <strong id="current-day">1</strong>/ 7
+
+        </div>
+
+        <div class="top-stats">
+
+            <!-- ELECTRICITY STATISTICS -->
+
+            <div class="stat-card"
+                 title="Allocated / total capacity">
+
+                ⚡
+
+                <strong>
+                    <span id="top-energy">0</span>/<span id="top-capacity">70</span>
+                </strong>
+
+                kWh
+
+            </div>
+
+            <!-- ENERGY CREDITS -->
+
+            <div class="stat-card funds-stat"
+                 title="Energy Credits">
+
+                <strong id="top-funds">1000</strong>
+
+                <svg class="ec-symbol"
+                     viewBox="0 0 32 44"
+                     aria-label="Energy Credits">
+
+                    <path
+                        d="M28 12 C24 -2 3 -1 3 16 V28 C3 45 24 46 28 32"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    />
+
+                    <path
+                        d="M22 12 H12 V32 H22 M12 21 H20"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    />
+
+                </svg>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- =====================================
+         CONTEXTUAL PANEL
+         ===================================== -->
+
+    <aside id="slide-panel" class="closed">
+
+        <button id="close-panel-btn"
+                type="button"
+                aria-label="Close panel">
+            ×
+        </button>
+
+        <!-- DAILY OBJECTIVES -->
+
+        <section id="daily-event-panel"
+                 class="panel-content">
+
+            <h2>Objectives</h2>
+
+            <h3 id="event-title">
+                Day 1 — Normal Operations
+            </h3>
+
+            <p id="event-description">
+                Connect the grid and supply at least
+                6 households.
+            </p>
+
+            <p>
+                Capacity:
+                <strong id="event-capacity">70</strong> kWh
+            </p>
+
+            <p>
+                Homes served:
+                <strong id="event-households">0</strong> /
+                <span id="required-households">6</span>
+            </p>
+
+            <span id="top-households" hidden>0</span>
+
+            <p id="essential-objectives"></p>
+
+            <p id="planning-status">
+                Review your allocations.
+            </p>
+
+            <button id="confirm-plan-btn"
+                    type="button">
+                Confirm my strategy
+            </button>
+
+        </section>
+
+        <!-- =====================================
+             FLOATING BUILDING POPUP
+             ===================================== -->
+
+        <section id="hud"
+                 class="panel-content"
+                 hidden>
+
+            <div id="building-info" hidden>
+
+                <h2 id="building-name">
+                    Building
+                </h2>
+
+                <p id="building-type"></p>
+
+                <p id="building-demand"></p>
+
+                <p id="building-details"></p>
+
+            </div>
+
+            <!-- BUILDING CONNECTION -->
+
+            <div id="connection-panel" hidden>
+
+                <p id="connection-status"></p>
+
+                <p id="connection-cost"></p>
+
+                <button id="connect-btn"
+                        type="button">
+                    Connect building
+                </button>
+
+            </div>
+
+            <!-- ELECTRICITY ALLOCATION -->
+
+            <div id="allocation-panel" hidden>
+
+                <div class="allocation-heading">
+
+                    <label for="power-slider">
+                        Allocation
+                    </label>
+
+                    <strong id="allocation-value">
+                        0 kWh/day
+                    </strong>
+
+                </div>
+
+                <input
+                    id="power-slider"
+                    type="range"
+                    min="0"
+                    max="30"
+                    value="0"
+                >
+
+                <button id="allocate-btn"
+                        type="button">
+                    Apply allocation
+                </button>
+
+                <p id="allocation-message"
+                   role="status"></p>
+
+            </div>
+
+        </section>
+
+        <!-- =====================================
+             ENERGY DASHBOARD
+             ===================================== -->
+
+        <section id="energy-dashboard"
+                 class="panel-content"
+                 hidden>
+
+            <h2>Energy</h2>
+
+            <p>
+                Available:
+                <strong id="total-energy">70</strong> kWh
+            </p>
+
+            <p>
+                Allocated:
+                <strong id="used-energy">0</strong> kWh
+            </p>
+
+            <p>
+                Remaining:
+                <strong id="remaining-energy">70</strong> kWh
+            </p>
+
+            <div class="energy-track">
+
+                <div id="energy-fill"></div>
+
+            </div>
+
+            <p id="grid-status"></p>
+
+        </section>
+
+        <!-- =====================================
+             FINANCE DASHBOARD
+             ===================================== -->
+
+        <section id="finance-dashboard"
+                 class="panel-content"
+                 hidden>
+
+            <h2>Council finances</h2>
+
+            <p>
+                Funds:
+                <strong id="council-funds">1000</strong> EC
+            </p>
+
+            <p>
+                Daily electricity cost:
+                <strong id="daily-cost">0</strong> EC
+            </p>
+
+            <p>
+                Household revenue:
+                <strong id="daily-revenue">0</strong> EC
+            </p>
+
+            <p>
+                Public funding:
+                <strong id="public-funding">0</strong> EC
+            </p>
+
+            <p>
+                Maintenance:
+                <strong id="maintenance-value">25</strong> EC
+            </p>
+
+            <p>
+                Projected daily balance:
+                <strong id="daily-balance">-25</strong> EC
+            </p>
+
+            <button id="upgrade-btn"
+                    type="button">
+                Upgrade Grid (+10 kWh) — 120 EC
+            </button>
+
+            <p id="finance-message"></p>
+
+        </section>
+
+        <!--
+            GRID INTELLIGENCE ADVISOR
+            Automatically generated by main.js
+        -->
+        <section
+    id="settings-panel"
+    class="panel-content"
+    hidden
+>
+    <h2>Settings</h2>
+
+    <div class="setting-group">
+
+        <div class="setting-heading">
+            <label for="graphics-slider">
+                Graphics quality
+            </label>
+
+            <strong id="graphics-value">
+                Medium
+            </strong>
+        </div>
+
+        <input
+            id="graphics-slider"
+            type="range"
+            min="0"
+            max="2"
+            step="1"
+            value="1"
+        >
+
+        <div class="slider-labels">
+            <span>Low</span>
+            <span>Medium</span>
+            <span>High</span>
+        </div>
+
+        <p id="graphics-description">
+            Balanced visuals and performance.
+        </p>
+
+    </div>
+
+    <div class="setting-group">
+
+        <div class="setting-heading">
+            <label for="difficulty-slider">
+                Difficulty
+            </label>
+
+            <strong id="difficulty-value">
+                Normal
+            </strong>
+        </div>
+
+        <input
+            id="difficulty-slider"
+            type="range"
+            min="0"
+            max="2"
+            step="1"
+            value="1"
+        >
+
+        <div class="slider-labels">
+            <span>Easy</span>
+            <span>Normal</span>
+            <span>Hard</span>
+        </div>
+
+        <p id="difficulty-description">
+            Original PowerQuest gameplay balance.
+        </p>
+
+        <p class="settings-notice">
+            Difficulty changes apply on restart.
+        </p>
+
+    </div>
+
+    <button id="settings-restart-btn" type="button">
+        Restart campaign
+    </button>
+
+    <button id="reset-settings-btn" type="button">
+        Restore defaults
+    </button>
+
+</section>
+    </aside>
+
+    <!-- =====================================
+         MINIMAL BOTTOM CONTROLS
+         ===================================== -->
+
+    <nav id="bottom-bar">
+
+        <div class="left-controls">
+
+            <!-- MENU BUTTON -->
+
+            <button id="menu-btn"
+                    type="button"
+                    aria-label="Menu"
+                    aria-expanded="false">
+                ☰
+            </button>
+
+            <!-- OBJECTIVES BUTTON -->
+
+            <button class="nav-btn"
+                    data-panel="daily-event-panel"
+                    type="button">
+                Objectives
+            </button>
+
+            <!-- COLLAPSIBLE NAVIGATION -->
+
+            <div class="nav-buttons" hidden>
+
+                <button class="nav-btn"
+                        data-panel="hud"
+                        type="button">
+                    Buildings
+                </button>
+
+                <button class="nav-btn"
+                        data-panel="energy-dashboard"
+                        type="button">
+                    Energy
+                </button>
+
+                <button class="nav-btn"
+                        data-panel="finance-dashboard"
+                        type="button">
+                    Finances
+                </button>
+
+                <!--
+                    Advisor button automatically
+                    generated by main.js
+                -->
+                <button
+    class="nav-btn"
+    data-panel="settings-panel"
+    type="button"
+>
+    ⚙ Settings
+</button>
+            </div>
+
+        </div>
+
+        <!-- REVIEW DAILY PLAN -->
+
+        <button id="next-day-btn"
+                type="button">
+            Review plan →
+        </button>
+
+    </nav>
+
+    <!-- =====================================
+         GAME RESULT SCREEN
+         ===================================== -->
+
+    <div id="game-result" hidden>
+
+        <div class="result-card">
+
+            <h1 id="result-title"></h1>
+
+            <p id="result-reason"></p>
+
+            <h2 id="final-score"></h2>
+
+            <pre id="result-breakdown"></pre>
+
+            <button id="restart-btn"
+                    type="button">
+                Play again
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================
+         THREE.JS GAME
+         ===================================== -->
+
+    <script type="module" src="main.js"></script>
+
+</body>
+</html>

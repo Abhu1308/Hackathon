@@ -1,0 +1,597 @@
+/* =========================================
+   POWERQUEST v2.0 — MINIMAL HUD
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+
+    --panel: #101a27;
+    --border: #344353;
+    --muted: #a7b5c5;
+    --accent: #65ced9;
+    --primary: #176c7c;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+
+    font: 13px/1.45 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+
+    background: #101827;
+    color: #edf2f7;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+    color: inherit;
+
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 7px;
+
+    padding: 8px 12px;
+}
+
+button:hover:not(:disabled) {
+    background: #263849;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* =========================================
+   3D GAME
+   ========================================= */
+
+#game {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+#game canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+/* =========================================
+   FLOATING HUD
+   ========================================= */
+
+#top-bar,
+#bottom-bar {
+    position: fixed;
+
+    left: 12px;
+    right: 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 8px;
+
+    z-index: 30;
+
+    pointer-events: none;
+}
+
+#top-bar {
+    top: 12px;
+}
+
+#bottom-bar {
+    bottom: 12px;
+}
+
+#top-bar > *,
+#bottom-bar > * {
+    pointer-events: auto;
+}
+
+.day-chip,
+.top-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    padding: 8px 11px;
+
+    white-space: nowrap;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.top-stats {
+    gap: 12px;
+}
+
+.stat-card + .stat-card {
+    border-left: 1px solid var(--border);
+    padding-left: 12px;
+}
+
+#day-icon,
+#top-energy,
+#top-capacity {
+    color: var(--accent);
+}
+
+/* =========================================
+   COLLAPSIBLE MENU
+   ========================================= */
+
+.left-controls {
+    display: flex;
+    gap: 6px;
+
+    position: relative;
+}
+
+.nav-buttons {
+    position: absolute;
+
+    bottom: calc(100% + 8px);
+    left: 0;
+
+    display: grid;
+    gap: 3px;
+
+    width: 150px;
+    padding: 5px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: var(--panel);
+}
+
+.nav-buttons button {
+    text-align: left;
+    border: 0;
+}
+
+.nav-btn.active,
+#menu-btn[aria-expanded=true] {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* =========================================
+   PRIMARY BUTTONS
+   ========================================= */
+
+#next-day-btn,
+#confirm-plan-btn,
+#connect-btn,
+#allocate-btn,
+#upgrade-btn,
+#restart-btn {
+    background: var(--primary);
+    border-color: #32899a;
+
+    color: white;
+    font-weight: 600;
+}
+
+#next-day-btn:hover:not(:disabled),
+.panel-content button:hover:not(:disabled) {
+    filter: brightness(1.15);
+}
+
+/* =========================================
+   CONTEXTUAL PANELS
+   ========================================= */
+
+#slide-panel {
+    position: fixed;
+
+    left: 12px;
+    bottom: 60px;
+
+    width: 300px;
+
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 120px);
+
+    overflow: auto;
+    overscroll-behavior: contain;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    z-index: 25;
+
+    box-shadow: 0 5px 18px #0003;
+}
+
+#slide-panel.closed {
+    display: none;
+}
+
+/* FLOATING BUILDING POPUP */
+
+#slide-panel.building-popup {
+    left: 0;
+    top: 0;
+    bottom: auto;
+
+    width: 250px;
+
+    max-height: calc(100vh - 120px);
+}
+
+/* CLOSE BUTTON */
+
+#close-panel-btn {
+    position: absolute;
+
+    right: 7px;
+    top: 6px;
+
+    padding: 0;
+
+    width: 26px;
+    height: 26px;
+
+    font-size: 20px;
+    line-height: 1;
+
+    background: transparent;
+    border: 0;
+
+    color: var(--muted);
+}
+
+/* =========================================
+   PANEL CONTENT
+   ========================================= */
+
+.panel-content {
+    padding: 13px;
+}
+
+.panel-content h2 {
+    font-size: 15px;
+    line-height: 1.3;
+
+    margin: 0 25px 10px 0;
+
+    font-weight: 650;
+}
+
+.panel-content h3 {
+    font-size: 13px;
+    margin: 8px 0;
+
+    color: var(--accent);
+}
+
+.panel-content p {
+    margin: 6px 0;
+    overflow-wrap: anywhere;
+}
+
+.panel-content button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+#event-description,
+#building-type,
+#building-details,
+#connection-cost {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+#planning-status {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+
+    color: var(--muted);
+}
+
+/* =========================================
+   BUILDING MANAGEMENT
+   ========================================= */
+
+#building-info,
+#connection-panel {
+    margin-bottom: 8px;
+}
+
+#connection-status {
+    color: var(--accent);
+}
+
+#allocation-panel {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+}
+
+.allocation-heading {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 5px;
+    font-size: 12px;
+}
+
+#allocation-value {
+    color: var(--accent);
+    margin: 0;
+}
+
+#power-slider {
+    width: 100%;
+    margin: 8px 0;
+
+    accent-color: var(--accent);
+}
+
+#allocation-message,
+#finance-message {
+    font-size: 12px;
+    color: var(--accent);
+}
+
+#allocation-message:empty,
+#finance-message:empty {
+    display: none;
+}
+
+/* =========================================
+   ENERGY DASHBOARD
+   ========================================= */
+
+.energy-track {
+    height: 5px;
+
+    background: #344353;
+    border-radius: 4px;
+
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+#energy-fill {
+    height: 100%;
+    width: 0;
+
+    background: var(--accent);
+}
+
+/* =========================================
+   GRID INTELLIGENCE ADVISOR
+   ========================================= */
+
+#advisor-panel #analyze-grid-btn {
+    background: var(--primary) !important;
+    color: white !important;
+
+    padding: 8px !important;
+    margin: 8px 0 !important;
+
+    border-radius: 7px !important;
+}
+
+#advisor-results,
+#advisor-forecast {
+    padding: 8px !important;
+
+    background: #182534 !important;
+
+    border: 0 !important;
+
+    font-size: 12px;
+}
+
+#advisor-results > div {
+    padding: 8px !important;
+    margin: 6px 0 !important;
+
+    border-radius: 5px !important;
+}
+
+/* =========================================
+   SUBMISSION AND RESULT SCREENS
+   ========================================= */
+
+#submission-overlay > div,
+.result-card {
+    background: var(--panel) !important;
+
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+}
+
+#submission-overlay h2,
+.result-card h1 {
+    color: #edf2f7 !important;
+    font-size: 20px;
+}
+
+#confirm-submission {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+#game-result {
+    position: fixed;
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    background: #020617c9;
+
+    z-index: 100;
+}
+
+.result-card {
+    width: min(440px, 90vw);
+
+    padding: 24px;
+
+    text-align: center;
+
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.result-card pre {
+    white-space: pre-wrap;
+    text-align: left;
+    line-height: 1.7;
+}
+
+#restart-btn {
+    width: 100%;
+}
+
+/* =========================================
+   SMALLER SCREENS
+   ========================================= */
+
+@media (max-width: 480px) {
+
+    body {
+        font-size: 12px;
+    }
+
+    #top-bar,
+    #bottom-bar {
+        left: 8px;
+        right: 8px;
+    }
+
+    .day-chip,
+    .top-stats {
+        padding: 7px;
+        gap: 5px;
+    }
+
+    .stat-card + .stat-card {
+        padding-left: 6px;
+    }
+
+    #slide-panel {
+        left: 8px;
+        max-width: calc(100vw - 16px);
+    }
+
+    button {
+        padding: 8px 9px;
+    }
+
+}
+/* CUSTOM ENERGY CREDITS SYMBOL */
+
+.funds-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ec-symbol {
+    width: 13px;
+    height: 18px;
+    color: #4cbb17;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+/* ==========================================
+   SETTINGS PANEL
+   ========================================== */
+
+.setting-group {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.setting-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.setting-heading label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.setting-heading strong {
+    color: var(--accent);
+    font-size: 12px;
+}
+
+.setting-group input[type="range"] {
+    width: 100%;
+    margin: 8px 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+#graphics-description,
+#difficulty-description {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.settings-notice {
+    color: #f5b942;
+    font-size: 11px;
+}
+
+#settings-restart-btn {
+    background: var(--primary);
+    border-color: #32899a;
+    margin-top: 16px;
+}
+
+#reset-settings-btn {
+    background: transparent;
+    color: var(--muted);
+}
